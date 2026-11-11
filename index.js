@@ -25,6 +25,7 @@ app.get('/', (req,res)=>{
 
 const client = new MongoClient(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ojmgvh3.mongodb.net/`);
 
+//  console.log('client====================', client);
 
 export async function connecToMongodb(){
     try {
@@ -38,13 +39,35 @@ export async function connecToMongodb(){
 }
 
 
-//Mnogodb Database(practice-1) and collection(usersCollection)  connection
+//Mnogodb Database(hireloopdb) and collection(jobs)  connection
 const connectedClient = await connecToMongodb();
 const db = connectedClient.db('hireloopdb');
 const jobsCollection = db.collection('jobs');
+const usersCollection = db.collection('user');
 
 // const bookingCollection = db.collection('my-bookings');
 // const myListingsCollection = db.collection('my-listings');
 
+app.get('/users', async (req, res) => {
+    try {
+        const users = await usersCollection.find().toArray();
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 
+
+app.post('/add-jobs', async (req, res) => {
+    const jobData = req.body;
+    console.log('Received job data:', jobData);
+    try {
+        const result = await jobsCollection.insertOne(jobData);
+        res.status(201).json({ message: 'Job added successfully', jobId: result.insertedId });
+    } catch (error) {
+        console.error('Error adding job:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})

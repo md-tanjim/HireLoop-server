@@ -70,4 +70,15 @@ app.post('/add-jobs', async (req, res) => {
         console.error('Error adding job:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
-})
+});
+
+app.get('/jobs/:email',async(req,res)=>{
+    const {email} = req.params;
+    console.log(req.params,"this is params");
+
+
+    const result = await jobsCollection.find({ "createdByEmail": email }).toArray();
+
+    res.send(result);
+
+});
